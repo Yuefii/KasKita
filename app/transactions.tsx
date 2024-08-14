@@ -1,67 +1,71 @@
-import { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useState } from 'react'
+import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native'
+import { useLocalSearchParams } from 'expo-router'
 
 type Transaction = {
-  id: string;
-  name: string;
-  amount: string;
-  date: string;
-};
+  id: string
+  name: string
+  amount: string
+  date: string
+}
 
 // Group transactions by date
 const groupByDate = (transactions: Transaction[]) => {
-  const grouped: Record<string, Transaction[]> = {};
+  const grouped: Record<string, Transaction[]> = {}
 
-  transactions.forEach(transaction => {
+  transactions.forEach((transaction) => {
     if (!grouped[transaction.date]) {
-      grouped[transaction.date] = [];
+      grouped[transaction.date] = []
     }
-    grouped[transaction.date].push(transaction);
-  });
+    grouped[transaction.date].push(transaction)
+  })
 
-  return grouped;
-};
+  return grouped
+}
 
 // Sort grouped transactions by date
 const sortDates = (groupedTransactions: Record<string, Transaction[]>) => {
-  const dates = Object.keys(groupedTransactions);
-  dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+  const dates = Object.keys(groupedTransactions)
+  dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
 
-  const sortedGrouped: Record<string, Transaction[]> = {};
-  dates.forEach(date => {
-    sortedGrouped[date] = groupedTransactions[date];
-  });
+  const sortedGrouped: Record<string, Transaction[]> = {}
+  dates.forEach((date) => {
+    sortedGrouped[date] = groupedTransactions[date]
+  })
 
-  return sortedGrouped;
-};
+  return sortedGrouped
+}
 
 export default function TransactionsScreen() {
-  const { transactions } = useLocalSearchParams<{ transactions: string }>();
-  const parsedTransactions: Transaction[] = transactions ? JSON.parse(transactions) : [];
+  const { transactions } = useLocalSearchParams<{ transactions: string }>()
+  const parsedTransactions: Transaction[] = transactions
+    ? JSON.parse(transactions)
+    : []
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState('')
 
   // Filter transactions based on search query
-  const filteredTransactions = parsedTransactions.filter(transaction =>
+  const filteredTransactions = parsedTransactions.filter((transaction) =>
     transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  )
 
   // Group transactions by date
-  const groupedTransactions = groupByDate(filteredTransactions);
+  const groupedTransactions = groupByDate(filteredTransactions)
 
   // Sort dates
-  const sortedGroupedTransactions = sortDates(groupedTransactions);
+  const sortedGroupedTransactions = sortDates(groupedTransactions)
 
   // Prepare data for rendering
-  const renderData = Object.entries(sortedGroupedTransactions).map(([date, transactions]) => ({
-    date: new Date(date).toLocaleDateString('id-ID', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric'
-    }),
-    transactions
-  }));
+  const renderData = Object.entries(sortedGroupedTransactions).map(
+    ([date, transactions]) => ({
+      date: new Date(date).toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'long',
+        year: 'numeric',
+      }),
+      transactions,
+    })
+  )
 
   return (
     <View style={styles.container}>
@@ -80,16 +84,18 @@ export default function TransactionsScreen() {
         renderItem={({ item }) => (
           <View style={styles.dateSection}>
             <Text style={styles.date}>{item.date}</Text>
-            {item.transactions.map(transaction => (
+            {item.transactions.map((transaction) => (
               <View key={transaction.id} style={styles.transaction}>
-                <Text>{transaction.name} - {transaction.amount}</Text>
+                <Text>
+                  {transaction.name} - {transaction.amount}
+                </Text>
               </View>
             ))}
           </View>
         )}
       />
     </View>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -121,5 +127,4 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: '#eee',
   },
-});
-
+})

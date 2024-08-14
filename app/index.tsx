@@ -1,21 +1,21 @@
-import { useState } from 'react';
-import { Text, View, TextInput, StyleSheet, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useState } from 'react'
+import { Text, View, TextInput, StyleSheet, Pressable } from 'react-native'
+import { useRouter } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 type Transaction = {
-  id: string;
-  name: string;
-  amount: string;
-  date: string;
-};
+  id: string
+  name: string
+  amount: string
+  date: string
+}
 
 export default function Home() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [name, setName] = useState('');
-  const [amount, setAmount] = useState('');
-  const router = useRouter();
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [name, setName] = useState('')
+  const [amount, setAmount] = useState('')
+  const router = useRouter()
 
   const addTransaction = () => {
     if (name && amount) {
@@ -23,29 +23,39 @@ export default function Home() {
         id: Date.now().toString(),
         name,
         amount,
-        date: new Date().toISOString().split('T')[0]
-      };
-      setTransactions([...transactions, newTransaction]);
-      setName('');
-      setAmount('');
+        date: new Date().toISOString().split('T')[0],
+      }
+      setTransactions([...transactions, newTransaction])
+      setName('')
+      setAmount('')
     }
-  };
+  }
 
   const navigateToTransactions = () => {
     router.push({
       pathname: '/transactions',
-      params: { transactions: JSON.stringify(transactions) }
-    });
-  };
+      params: { transactions: JSON.stringify(transactions) },
+    })
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="light" backgroundColor='#0ea5e9' />
+      <StatusBar style="light" backgroundColor="#0ea5e9" />
       <View style={styles.header}>
         <Text style={styles.title}>Pembayaran Kas</Text>
       </View>
       <View style={styles.form}>
-        <Text style={{ paddingTop: 10, paddingBottom: 20, paddingLeft: 20, fontSize: 20, fontWeight: 'semibold' }}>Transaksi</Text>
+        <Text
+          style={{
+            paddingTop: 10,
+            paddingBottom: 20,
+            paddingLeft: 20,
+            fontSize: 20,
+            fontWeight: 'semibold',
+          }}
+        >
+          Transaksi
+        </Text>
         <TextInput
           style={styles.input}
           placeholder="Nama Anggota"
@@ -59,22 +69,21 @@ export default function Home() {
           keyboardType="numeric"
           onChangeText={setAmount}
         />
-        <Pressable style={styles.button} onPress={addTransaction} >
+        <Pressable style={styles.button} onPress={addTransaction}>
           <Text style={styles.button_text}>Tambah Transaksi</Text>
         </Pressable>
-        <Pressable style={styles.button} onPress={navigateToTransactions}  >
+        <Pressable style={styles.button} onPress={navigateToTransactions}>
           <Text style={styles.button_text}>Lihat Transaksi</Text>
         </Pressable>
-
       </View>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white'
+    backgroundColor: 'white',
   },
   header: {
     width: '100%',
@@ -85,7 +94,7 @@ const styles = StyleSheet.create({
     fontSize: 30,
     color: 'white',
     marginVertical: 24,
-    textAlign: 'center'
+    textAlign: 'center',
   },
   form: {
     padding: 10,
@@ -107,13 +116,12 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     paddingVertical: 14,
     paddingHorizontal: 10,
-    backgroundColor: "#0ea5e9",
+    backgroundColor: '#0ea5e9',
   },
   button_text: {
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'semibold',
-    color: 'white'
-  }
-});
-
+    color: 'white',
+  },
+})
