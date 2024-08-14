@@ -1,46 +1,71 @@
-// app/transactions.tsx
 import { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, Button, TextInput } from 'react-native';
+import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 
 type Transaction = {
   id: string;
   name: string;
   amount: string;
+  date: string;
+};
+
+// Group transactions by date
+const groupByDate = (transactions: Transaction[]) => {
+  const grouped: Record<string, Transaction[]> = {};
+
+  transactions.forEach(transaction => {
+    if (!grouped[transaction.date]) {
+      grouped[transaction.date] = [];
+    }
+    grouped[transaction.date].push(transaction);
+  });
+
+  return grouped;
+};
+
+// Sort grouped transactions by date
+const sortDates = (groupedTransactions: Record<string, Transaction[]>) => {
+  const dates = Object.keys(groupedTransactions);
+  dates.sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
+
+  const sortedGrouped: Record<string, Transaction[]> = {};
+  dates.forEach(date => {
+    sortedGrouped[date] = groupedTransactions[date];
+  });
+
+  return sortedGrouped;
 };
 
 export default function TransactionsScreen() {
   const { transactions } = useLocalSearchParams<{ transactions: string }>();
   const parsedTransactions: Transaction[] = transactions ? JSON.parse(transactions) : [];
-  
-  // State for sorting and filtering
-  const [sortType, setSortType] = useState<'name' | 'amount'>('name');
+
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Sort transactions based on the selected sort type
-  const sortedTransactions = [...parsedTransactions].sort((a, b) => {
-    if (sortType === 'name') {
-      return a.name.localeCompare(b.name);
-    } else {
-      const amountA = parseFloat(a.amount);
-      const amountB = parseFloat(b.amount);
-      return amountA - amountB;
-    }
-  });
-
-  // Filter transactions based on the search query
-  const filteredTransactions = sortedTransactions.filter(transaction =>
+  // Filter transactions based on search query
+  const filteredTransactions = parsedTransactions.filter(transaction =>
     transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Group transactions by date
+  const groupedTransactions = groupByDate(filteredTransactions);
+
+  // Sort dates
+  const sortedGroupedTransactions = sortDates(groupedTransactions);
+
+  // Prepare data for rendering
+  const renderData = Object.entries(sortedGroupedTransactions).map(([date, transactions]) => ({
+    date: new Date(date).toLocaleDateString('id-ID', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric'
+    }),
+    transactions
+  }));
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Daftar Transaksi</Text>
-
-      <View style={styles.sortContainer}>
-        <Button title="Sort by Name" onPress={() => setSortType('name')} />
-        <Button title="Sort by Amount" onPress={() => setSortType('amount')} />
-      </View>
 
       <TextInput
         style={styles.input}
@@ -50,11 +75,16 @@ export default function TransactionsScreen() {
       />
 
       <FlatList
-        data={filteredTransactions}
-        keyExtractor={(item) => item.id}
+        data={renderData}
+        keyExtractor={(item) => item.date}
         renderItem={({ item }) => (
-          <View style={styles.transaction}>
-            <Text>{item.name}: {item.amount}</Text>
+          <View style={styles.dateSection}>
+            <Text style={styles.date}>{item.date}</Text>
+            {item.transactions.map(transaction => (
+              <View key={transaction.id} style={styles.transaction}>
+                <Text>{transaction.name} - {transaction.amount}</Text>
+              </View>
+            ))}
           </View>
         )}
       />
@@ -71,17 +101,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     marginBottom: 16,
   },
-  sortContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 16,
-  },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
     padding: 8,
     marginBottom: 16,
     borderRadius: 4,
+  },
+  dateSection: {
+    marginBottom: 16,
+  },
+  date: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 8,
   },
   transaction: {
     padding: 8,
