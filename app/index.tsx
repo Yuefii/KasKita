@@ -3,6 +3,7 @@ import { Text, View, TextInput, StyleSheet, Pressable } from 'react-native'
 import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { formatRupiah } from '@/utils/format_price'
 
 type Transaction = {
   id: string
@@ -38,6 +39,12 @@ export default function Home() {
     })
   }
 
+  const handleAmountChange = (value: string) => {
+    const numericValue = value.replace(/[^0-9]/g, '')
+    const formattedValue = formatRupiah(numericValue)
+    setAmount(formattedValue)
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar style="light" backgroundColor="#0ea5e9" />
@@ -67,7 +74,7 @@ export default function Home() {
           placeholder="Jumlah Pembayaran"
           value={amount}
           keyboardType="numeric"
-          onChangeText={setAmount}
+          onChangeText={handleAmountChange}
         />
         <Pressable style={styles.button} onPress={addTransaction}>
           <Text style={styles.button_text}>Tambah Transaksi</Text>

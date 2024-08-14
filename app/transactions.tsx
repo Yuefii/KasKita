@@ -4,6 +4,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import Ionicons from '@expo/vector-icons/Ionicons'
+import { formatRupiah } from '@/utils/format_price'
 
 type Transaction = {
   id: string
@@ -104,7 +105,7 @@ export default function TransactionsScreen() {
                     {transaction.name}
                   </Text>
                   <Text style={styles.transaction_text}>
-                    {transaction.amount}
+                    {formatRupiah(transaction.amount)}
                   </Text>
                 </View>
               ))}
@@ -138,6 +139,7 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   section: {
+    flex: -1,
     padding: 10,
     marginTop: -30,
     backgroundColor: 'white',
