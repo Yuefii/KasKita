@@ -9,7 +9,12 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
-      <Stack.Screen name="transactions" options={{ title: 'Transaksi' }} />
+      <Stack.Screen
+        name="transactions"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   )
 }

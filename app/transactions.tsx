@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native'
-import { useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import { StatusBar } from 'expo-status-bar'
+import Ionicons from '@expo/vector-icons/Ionicons'
 
 type Transaction = {
   id: string
@@ -68,51 +71,86 @@ export default function TransactionsScreen() {
   )
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Daftar Transaksi</Text>
+    <SafeAreaView style={styles.container}>
+      <StatusBar style="light" backgroundColor="#0ea5e9" />
 
-      <TextInput
-        style={styles.input}
-        placeholder="Cari nama..."
-        value={searchQuery}
-        onChangeText={setSearchQuery}
-      />
+      <View style={styles.header}>
+        <Ionicons
+          onPress={() => router.back()}
+          style={styles.icon}
+          name="arrow-back"
+          size={30}
+          color="white"
+        />
+        <Text style={styles.title}>Daftar Transaksi</Text>
+      </View>
+      <View style={styles.section}>
+        <TextInput
+          style={styles.input}
+          placeholder="Cari nama..."
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
 
-      <FlatList
-        data={renderData}
-        keyExtractor={(item) => item.date}
-        renderItem={({ item }) => (
-          <View style={styles.dateSection}>
-            <Text style={styles.date}>{item.date}</Text>
-            {item.transactions.map((transaction) => (
-              <View key={transaction.id} style={styles.transaction}>
-                <Text>
-                  {transaction.name} - {transaction.amount}
-                </Text>
-              </View>
-            ))}
-          </View>
-        )}
-      />
-    </View>
+        <FlatList
+          data={renderData}
+          keyExtractor={(item) => item.date}
+          renderItem={({ item }) => (
+            <View style={styles.dateSection}>
+              <Text style={styles.date}>{item.date}</Text>
+              {item.transactions.map((transaction) => (
+                <View key={transaction.id} style={styles.transaction}>
+                  <Text style={styles.transaction_text}>
+                    {transaction.name}
+                  </Text>
+                  <Text style={styles.transaction_text}>
+                    {transaction.amount}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          )}
+        />
+      </View>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
+    backgroundColor: 'white',
+  },
+  header: {
+    width: '100%',
+    height: 140,
+    backgroundColor: '#0ea5e9',
+  },
+  icon: {
+    marginLeft: 10,
+    paddingVertical: 8,
   },
   title: {
     fontSize: 24,
-    marginBottom: 16,
+    fontWeight: 'semibold',
+    color: 'white',
+    textAlign: 'center',
+    paddingVertical: 8,
+  },
+  section: {
+    padding: 10,
+    marginTop: -30,
+    backgroundColor: 'white',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
   input: {
     borderWidth: 1,
     borderColor: '#ccc',
-    padding: 8,
-    marginBottom: 16,
-    borderRadius: 4,
+    paddingVertical: 14,
+    paddingHorizontal: 14,
+    marginVertical: 16,
+    borderRadius: 24,
   },
   dateSection: {
     marginBottom: 16,
@@ -123,8 +161,18 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   transaction: {
-    padding: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    paddingVertical: 16,
+    paddingHorizontal: 30,
+    backgroundColor: '#f4f4f5',
+    borderRadius: 30,
+    marginLeft: 15,
+    marginVertical: 5,
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  transaction_text: {
+    color: 'black',
+    fontSize: 16,
   },
 })
