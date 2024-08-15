@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native'
 import { router, useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { formatRupiah } from '@/utils/format_price'
+import { fetchTransactions } from '@/libs/firebase'
 
 type Transaction = {
   id: string
@@ -41,15 +42,20 @@ const sortDates = (groupedTransactions: Record<string, Transaction[]>) => {
 }
 
 export default function TransactionsScreen() {
-  const { transactions } = useLocalSearchParams<{ transactions: string }>()
-  const parsedTransactions: Transaction[] = transactions
-    ? JSON.parse(transactions)
-    : []
-
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [searchQuery, setSearchQuery] = useState('')
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const fetchedTransactions = await fetchTransactions()
+      setTransactions(fetchedTransactions)
+    }
+
+    fetchData()
+  }, [])
+
   // Filter transactions based on search query
-  const filteredTransactions = parsedTransactions.filter((transaction) =>
+  const filteredTransactions = transactions.filter((transaction) =>
     transaction.name.toLowerCase().includes(searchQuery.toLowerCase())
   )
 

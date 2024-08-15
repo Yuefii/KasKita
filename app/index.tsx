@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { formatRupiah } from '@/utils/format_price'
+import { addDoc, collection, firestore } from '@/libs/firebase'
 
 type Transaction = {
   id: string
@@ -18,7 +19,7 @@ export default function Home() {
   const [amount, setAmount] = useState('')
   const router = useRouter()
 
-  const addTransaction = () => {
+  const addTransaction = async () => {
     if (name && amount) {
       const newTransaction: Transaction = {
         id: Date.now().toString(),
@@ -26,9 +27,15 @@ export default function Home() {
         amount,
         date: new Date().toISOString().split('T')[0],
       }
-      setTransactions([...transactions, newTransaction])
-      setName('')
-      setAmount('')
+      try {
+        const docRef = collection(firestore, 'transactions')
+        await addDoc(docRef, newTransaction)
+        setTransactions([...transactions, newTransaction])
+        setName('')
+        setAmount('')
+      } catch (error) {
+        console.error('Error adding document: ', error)
+      }
     }
   }
 
