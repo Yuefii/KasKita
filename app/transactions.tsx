@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { View, Text, FlatList, StyleSheet, TextInput } from 'react-native'
-import { router, useLocalSearchParams } from 'expo-router'
+import { router } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { StatusBar } from 'expo-status-bar'
 import Ionicons from '@expo/vector-icons/Ionicons'
 import { formatRupiah } from '@/utils/format_price'
-import { fetchTransactions } from '@/libs/firebase'
+import { supabase } from '@/libs/supabase'
 
 type Transaction = {
   id: string
@@ -47,8 +47,14 @@ export default function TransactionsScreen() {
 
   useEffect(() => {
     const fetchData = async () => {
-      const fetchedTransactions = await fetchTransactions()
-      setTransactions(fetchedTransactions)
+      const { data, error } = await supabase.from('transactions').select('*')
+
+      if (error) {
+        console.error('Error fetching transactions:', error)
+        return
+      }
+
+      setTransactions(data)
     }
 
     fetchData()

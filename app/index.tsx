@@ -1,57 +1,62 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Text, View, TextInput, StyleSheet, Pressable } from 'react-native'
 import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { formatRupiah } from '@/utils/format_price'
-import { addDoc, collection, firestore } from '@/libs/firebase'
-import PrivateRoute from './protectedRoute'
+import PrivateRoute from '@/context/protectedRoute'
+import { supabase } from '@/libs/supabase'
 
 type Transaction = {
   id: string
   name: string
-  amount: string
+  amount: number // Mengubah type dari string ke number
   date: string
 }
 
 export default function Home() {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [name, setName] = useState('')
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState('') // Menyimpan nilai mentah sebagai string
   const router = useRouter()
 
   const addTransaction = async () => {
     if (name && amount) {
+      const numericAmount = parseFloat(amount.replace(/[^0-9]/g, '')) // Mengkonversi format mata uang ke angka mentah
+
       const newTransaction: Transaction = {
         id: Date.now().toString(),
         name,
-        amount,
+        amount: numericAmount,
         date: new Date().toISOString().split('T')[0],
       }
+
       try {
-        const docRef = collection(firestore, 'transactions')
-        await addDoc(docRef, newTransaction)
+        const { error } = await supabase
+          .from('transactions')
+          .insert([newTransaction])
+
+        if (error) throw error
+
         setTransactions([...transactions, newTransaction])
         setName('')
         setAmount('')
       } catch (error) {
-        console.error('Error adding document: ', error)
+        console.error('Error adding transaction: ', error)
       }
     }
   }
 
   const navigateToTransactions = () => {
-    router.push({
-      pathname: '/transactions',
-      params: { transactions: JSON.stringify(transactions) },
-    })
+    router.push('/transactions') // Menghilangkan params jika tidak diperlukan
   }
 
   const handleAmountChange = (value: string) => {
     const numericValue = value.replace(/[^0-9]/g, '')
-    const formattedValue = formatRupiah(numericValue)
-    setAmount(formattedValue)
+    setAmount(numericValue) // Menyimpan nilai mentah untuk pemrosesan lebih lanjut
   }
+
+  const displayAmount = formatRupiah(Number(amount))
 
   return (
     <PrivateRoute>
@@ -81,9 +86,9 @@ export default function Home() {
           <TextInput
             style={styles.input}
             placeholder="Jumlah Pembayaran"
-            value={amount}
+            value={displayAmount} // Menampilkan nilai format mata uang
             keyboardType="numeric"
-            onChangeText={handleAmountChange}
+            onChangeText={handleAmountChange} // Menyimpan nilai mentah
           />
           <Pressable style={styles.button} onPress={addTransaction}>
             <Text style={styles.button_text}>Tambah Transaksi</Text>
