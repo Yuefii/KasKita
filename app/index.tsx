@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { formatRupiah } from '@/utils/format_price'
 import { addDoc, collection, firestore } from '@/libs/firebase'
+import PrivateRoute from './protectedRoute'
 
 type Transaction = {
   id: string
@@ -53,44 +54,46 @@ export default function Home() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar style="light" backgroundColor="#0ea5e9" />
-      <View style={styles.header}>
-        <Text style={styles.title}>Pembayaran Kas</Text>
-      </View>
-      <View style={styles.form}>
-        <Text
-          style={{
-            paddingTop: 10,
-            paddingBottom: 20,
-            paddingLeft: 20,
-            fontSize: 20,
-            fontWeight: 'semibold',
-          }}
-        >
-          Transaksi
-        </Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Nama Anggota"
-          value={name}
-          onChangeText={setName}
-        />
-        <TextInput
-          style={styles.input}
-          placeholder="Jumlah Pembayaran"
-          value={amount}
-          keyboardType="numeric"
-          onChangeText={handleAmountChange}
-        />
-        <Pressable style={styles.button} onPress={addTransaction}>
-          <Text style={styles.button_text}>Tambah Transaksi</Text>
-        </Pressable>
-        <Pressable style={styles.button} onPress={navigateToTransactions}>
-          <Text style={styles.button_text}>Lihat Transaksi</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
+    <PrivateRoute>
+      <SafeAreaView style={styles.container}>
+        <StatusBar style="light" backgroundColor="#0ea5e9" />
+        <View style={styles.header}>
+          <Text style={styles.title}>Pembayaran Kas</Text>
+        </View>
+        <View style={styles.form}>
+          <Text
+            style={{
+              paddingTop: 10,
+              paddingBottom: 20,
+              paddingLeft: 20,
+              fontSize: 20,
+              fontWeight: 'semibold',
+            }}
+          >
+            Transaksi
+          </Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Nama Anggota"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Jumlah Pembayaran"
+            value={amount}
+            keyboardType="numeric"
+            onChangeText={handleAmountChange}
+          />
+          <Pressable style={styles.button} onPress={addTransaction}>
+            <Text style={styles.button_text}>Tambah Transaksi</Text>
+          </Pressable>
+          <Pressable style={styles.button} onPress={navigateToTransactions}>
+            <Text style={styles.button_text}>Lihat Transaksi</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    </PrivateRoute>
   )
 }
 
